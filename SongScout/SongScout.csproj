@@ -172,6 +172,12 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\LibrespotHelper.cs" />
+    <Compile Include="Helpers\SpotifyHelper.cs" />
+    <Compile Include="LibrespotModels\AlbumInfo.cs" />
+    <Compile Include="LibrespotModels\ArtistAbout.cs" />
+    <Compile Include="LibrespotModels\ArtistInfo.cs" />
+    <Compile Include="LibrespotModels\ArtistInsights.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
@@ -187,6 +193,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
