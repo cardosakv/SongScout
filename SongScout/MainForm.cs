@@ -59,30 +59,41 @@ namespace SongScout
         private void SearchButton_Click(object sender, EventArgs e)
         {
             this.MainPages.PageIndex = 0;
+            LoadingCoverPanel.Visible = false;
         }
 
         private void OverviewButton_Click(object sender, EventArgs e)
         {
+            if (!isDataAvailable) LoadingCoverPanel.Visible = true;
+            if (isDataAvailable) LoadingCoverPanel.Visible = false;
             this.MainPages.PageIndex = 1;
         }
 
         private void SinglesButton_Click(object sender, EventArgs e)
         {
+            if (!isDataAvailable) LoadingCoverPanel.Visible = true;
+            if (isDataAvailable) LoadingCoverPanel.Visible = true;
             this.MainPages.PageIndex = 2;
         }
 
         private void AlbumsButton_Click(object sender, EventArgs e)
         {
+            if (!isDataAvailable) LoadingCoverPanel.Visible = true;
+            if (isDataAvailable) LoadingCoverPanel.Visible = true;
             this.MainPages.PageIndex = 3;
         }
 
         private void CompilationsButton_Click(object sender, EventArgs e)
         {
+            if (!isDataAvailable) LoadingCoverPanel.Visible = true;
+            if (isDataAvailable) LoadingCoverPanel.Visible = true;
             this.MainPages.PageIndex = 4;
         }
 
         private void ChartsButton_Click(object sender, EventArgs e)
         {
+            if (!isDataAvailable) LoadingCoverPanel.Visible = true;
+            if (isDataAvailable) LoadingCoverPanel.Visible = true;
             this.MainPages.PageIndex = 5;
         }
 
