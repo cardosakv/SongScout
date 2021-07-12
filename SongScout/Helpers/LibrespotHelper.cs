@@ -14,13 +14,21 @@ namespace SongScout.Helpers
 {
     public class LibrespotHelper
     {
-        public IDictionary<string, double> totalTracks = new Dictionary<string, double>();
-        public double featuredStreams = 0.0;
+        public IDictionary<string, DictValue> totalTracks = new Dictionary<string, DictValue>();
+        public struct DictValue
+        {
+            public string trackId;
+            public double playcount;
+        }
+
+        public List<string> mostStreamedTracksName = new List<string>();
+        public List<double> mostStreamedTracksPlaycount = new List<double>();
         public double leadstreams = 0.0;
         public int tracksWith1M = 0;
         public int tracksWith10M = 0;
         public int tracksWith100M = 0;
         public int tracksWith1B = 0;
+  
 
         public ArtistInfo.Root GetArtistInfo(string artistID)
         {
@@ -34,7 +42,6 @@ namespace SongScout.Helpers
             using (StreamReader reader = new StreamReader(stream))
             {
                 jsonResult = reader.ReadToEnd();
-
             }
 
             ArtistInfo.Root result = JsonConvert.DeserializeObject<ArtistInfo.Root>(jsonResult);
@@ -122,11 +129,7 @@ namespace SongScout.Helpers
             if (compilationsList != null) // getting streams from compilations
                 for (int index = 0; index < compilationsList.Count; index++)
                     GetLeadStreams(compilationsList[index].Uri);
-           /* 
-            if (appearances != null) // getting streams from features
-                for (int index = 0; index < appearances.Count; index++)
-                    GetFeaturedStreams(appearances[index].Uri, artistUri);
-            */      
+ 
             void GetLeadStreams(string releaseURI)
             {
                 var releaseID = releaseURI.Replace("spotify:album:", "");
@@ -143,10 +146,15 @@ namespace SongScout.Helpers
 
                         if (!totalTracks.ContainsKey(trackIsrc))
                         {
-                            var trackStreams = GetTrackStreams(releaseID, discIndex, trackIndex, tempAlbumInfo);
+                            var trackStreams = GetTrackStreams(discIndex, trackIndex, tempAlbumInfo);
                             leadstreams += trackStreams;
                             totalStreams += trackStreams;
-                            totalTracks.Add(trackIsrc, trackStreams);
+                            DictValue trackIDPlusStreams = new DictValue
+                            {
+                                trackId = trackId,
+                                playcount = trackStreams
+                            };
+                            totalTracks.Add(trackIsrc, trackIDPlusStreams);
 
                             if (trackStreams >= 1000000000)
                                 tracksWith1B++;
@@ -160,53 +168,10 @@ namespace SongScout.Helpers
                     }
                 }
             }
-                   
-            void GetFeaturedStreams(string releaseURI, string artistURI)
-            {
-                var releaseID = releaseURI.Replace("spotify:album:", "");
-                var tempAlbumInfo = GetAlbumInfo(releaseID);
-                var discList = tempAlbumInfo.Data.Discs;
-
-                for (int discIndex = 0; discIndex < discList.Count; discIndex++)
-                {
-                    var trackList = discList[discIndex].Tracks;
-                    for (int trackIndex = 0; trackIndex < trackList.Count; trackIndex++)
-                    {
-                        var trackId = trackList[trackIndex].Uri.Replace("spotify:track:", "");
-                        var trackIsrc = spotify.Tracks.Get(trackId).Result.ExternalIds["isrc"];
-                        var trackArtists = trackList[trackIndex].Artists;
-
-                        for (int artistIndex = 0; artistIndex < trackArtists.Count; artistIndex++)
-                        {
-                            if (trackArtists[artistIndex].Uri == artistURI)
-                            {
-                                if (!totalTracks.ContainsKey(trackIsrc))
-                                {
-                                    var trackStreams = GetTrackStreams(releaseID, discIndex, trackIndex, tempAlbumInfo);
-                                    totalStreams += trackStreams;
-                                    featuredStreams += trackStreams;
-                                    totalTracks.Add(trackIsrc, trackStreams);
-
-                                    if (trackStreams >= 1000000000)
-                                        tracksWith1B++;
-                                    if (trackStreams >= 100000000)
-                                        tracksWith100M++;
-                                    if (trackStreams >= 10000000)
-                                        tracksWith10M++;
-                                    if (trackStreams >= 1000000)
-                                        tracksWith1M++;
-
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
 
             return totalStreams;
         }
-
+        
         public double GetReleaseStreams(string releaseURI)
         {
             var releaseID = releaseURI.Replace("spotify:album:", "");
@@ -219,16 +184,36 @@ namespace SongScout.Helpers
             {
                 for (int trackIndex = 0; trackIndex < discList[discIndex].Tracks.Count; trackIndex++)
                 {
-                    releaseStreams += GetTrackStreams(releaseID, discIndex, trackIndex, tempAlbumInfo);
+                    releaseStreams += GetTrackStreams(discIndex, trackIndex, tempAlbumInfo);
                 }
             }
 
             return releaseStreams;
         }
 
-        public double GetTrackStreams(string albumID, int discIndex, int trackIndex, AlbumInfo.Root albumInfo)
+        public double GetTrackStreams(int discIndex, int trackIndex, AlbumInfo.Root albumInfo)
         { 
             return albumInfo.Data.Discs[discIndex].Tracks[trackIndex].Playcount;
+        }
+
+        public void OrderTracks(IDictionary<string, DictValue> totalTracks, string token)
+        {
+            var spotify = new SpotifyClient(token);
+            var count = 1;
+            foreach (var item in totalTracks.OrderByDescending(key => key.Value.playcount))
+            {
+                string trackName = spotify.Tracks.Get(item.Value.trackId).Result.Name;
+                
+                if (!mostStreamedTracksName.Contains(trackName) && 
+                    !mostStreamedTracksPlaycount.Contains(item.Value.playcount))
+                {
+                    mostStreamedTracksName.Add(trackName);
+                    mostStreamedTracksPlaycount.Add(item.Value.playcount);
+                    count++;
+                }
+
+                if (count > 5) break;
+            }
         }
     }
 }
