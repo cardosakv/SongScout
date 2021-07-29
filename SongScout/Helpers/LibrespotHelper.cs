@@ -33,17 +33,27 @@ namespace SongScout.Helpers
         public ArtistInfo.Root GetArtistInfo(string artistID)
         {
             string jsonResult = string.Empty;
-            string url = @"https://songscout.herokuapp.com/artistInfo?artistid=" + artistID;
+            string url = @"https://api.t4ils.dev/artistInfo?artistid=" + artistID;
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using (Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream))
+            try
             {
-                jsonResult = reader.ReadToEnd();
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "GET";
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream dataStream = response.GetResponseStream();
+                    StreamReader reader = new StreamReader(dataStream);
+                    jsonResult = reader.ReadToEnd();
+                    reader.Close();
+                    dataStream.Close();
+                }
             }
-
+            catch
+            {
+                ErrorForm errorForm = new ErrorForm();
+                errorForm.ShowDialog();
+            }
+            
             ArtistInfo.Root result = JsonConvert.DeserializeObject<ArtistInfo.Root>(jsonResult);
             return result;
         }
@@ -51,16 +61,25 @@ namespace SongScout.Helpers
         public ArtistInsights.Root GetArtistInsights(string artistID)
         {
             string jsonResult = string.Empty;
-            string url = @"https://songscout.herokuapp.com/artistInsights?artistid=" + artistID;
+            string url = @"https://api.t4ils.dev/artistInsights?artistid=" + artistID;
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.AutomaticDecompression = DecompressionMethods.GZip;
-
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using (Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream))
+            try
             {
-                jsonResult = reader.ReadToEnd();
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "GET";
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream dataStream = response.GetResponseStream();
+                    StreamReader reader = new StreamReader(dataStream);
+                    jsonResult = reader.ReadToEnd();
+                    reader.Close();
+                    dataStream.Close();
+                }
+            }
+            catch
+            {
+                ErrorForm errorForm = new ErrorForm();
+                errorForm.ShowDialog();
             }
 
             ArtistInsights.Root Result = JsonConvert.DeserializeObject<ArtistInsights.Root>(jsonResult);
@@ -70,16 +89,25 @@ namespace SongScout.Helpers
         public ArtistAbout.Root GetArtistAbout(string artistID)
         {
             string jsonResult = string.Empty;
-            string url = @"https://songscout.herokuapp.com/artistAbout?artistid=" + artistID;
+            string url = @"https://api.t4ils.dev/artistAbout?artistid=" + artistID;
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.AutomaticDecompression = DecompressionMethods.GZip;
-
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using (Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream))
+            try
             {
-                jsonResult = reader.ReadToEnd();
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "GET";
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream dataStream = response.GetResponseStream();
+                    StreamReader reader = new StreamReader(dataStream);
+                    jsonResult = reader.ReadToEnd();
+                    reader.Close();
+                    dataStream.Close();
+                }
+            }
+            catch
+            {
+                ErrorForm errorForm = new ErrorForm();
+                errorForm.ShowDialog();
             }
 
             ArtistAbout.Root Result = JsonConvert.DeserializeObject<ArtistAbout.Root>(jsonResult);
@@ -89,16 +117,25 @@ namespace SongScout.Helpers
         public AlbumInfo.Root GetAlbumInfo(string albumId)
         {
             string jsonResult = string.Empty;
-            string url = @"https://songscout.herokuapp.com/albumPlayCount?albumid=" + albumId;
+            string url = @"https://api.t4ils.dev/albumPlayCount?albumid=" + albumId;
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.AutomaticDecompression = DecompressionMethods.GZip;
-
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using (Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream))
+            try
             {
-                jsonResult = reader.ReadToEnd();
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "GET";
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream dataStream = response.GetResponseStream();
+                    StreamReader reader = new StreamReader(dataStream);
+                    jsonResult = reader.ReadToEnd();
+                    reader.Close();
+                    dataStream.Close();
+                }
+            }
+            catch
+            {
+                ErrorForm errorForm = new ErrorForm();
+                errorForm.ShowDialog();
             }
 
             AlbumInfo.Root Result = JsonConvert.DeserializeObject<AlbumInfo.Root>(jsonResult);
@@ -108,13 +145,11 @@ namespace SongScout.Helpers
         public double GetAllTimeStreams(string artistID, string token)
         {
             var tempArtistInfo = GetArtistInfo(artistID);
-            var artistUri = tempArtistInfo.Data.Info.Uri;
-            var spotify = new SpotifyClient(token);
 
             var singlesList = tempArtistInfo.Data.Releases.Singles.Releases;
             var albumsList = tempArtistInfo.Data.Releases.Albums.Releases;
             var compilationsList = tempArtistInfo.Data.Releases.Compilations.Releases;
-            //var appearances = tempArtistInfo.Data.Releases.AppearsOn.Releases;
+           // var appearancesList = tempArtistInfo.Data.Releases.AppearsOn.Releases;
 
             double totalStreams = 0.0;
 
@@ -129,7 +164,11 @@ namespace SongScout.Helpers
             if (compilationsList != null) // getting streams from compilations
                 for (int index = 0; index < compilationsList.Count; index++)
                     GetLeadStreams(compilationsList[index].Uri);
- 
+/*
+            if (appearancesList != null) // getting streams from features
+                for (int index = 0; index < compilationsList.Count; index++)
+                    GetLeadStreams(compilationsList[index].Uri);
+*/
             void GetLeadStreams(string releaseURI)
             {
                 var releaseID = releaseURI.Replace("spotify:album:", "");
@@ -142,11 +181,12 @@ namespace SongScout.Helpers
                     for (int trackIndex = 0; trackIndex < trackList.Count; trackIndex++)
                     {
                         var trackId = trackList[trackIndex].Uri.Replace("spotify:track:", "");
+                        var spotify = new SpotifyClient(token);
                         var trackIsrc = spotify.Tracks.Get(trackId).Result.ExternalIds["isrc"];     
 
                         if (!totalTracks.ContainsKey(trackIsrc))
                         {
-                            var trackStreams = GetTrackStreams(discIndex, trackIndex, tempAlbumInfo);
+                            double trackStreams = GetTrackStreams(discIndex, trackIndex, tempAlbumInfo);
                             leadstreams += trackStreams;
                             totalStreams += trackStreams;
                             DictValue trackIDPlusStreams = new DictValue
@@ -172,19 +212,17 @@ namespace SongScout.Helpers
             return totalStreams;
         }
         
-        public double GetReleaseStreams(string releaseURI)
+        public double GetReleaseStreams(AlbumInfo.Root albumInfo)
         {
-            var releaseID = releaseURI.Replace("spotify:album:", "");
-            var tempAlbumInfo = GetAlbumInfo(releaseID);
-            var discList = tempAlbumInfo.Data.Discs;
-
+            var discList = albumInfo.Data.Discs;
             double releaseStreams = 0.0;
 
             for (int discIndex = 0; discIndex < discList.Count; discIndex++)
             {
-                for (int trackIndex = 0; trackIndex < discList[discIndex].Tracks.Count; trackIndex++)
+                var trackList = discList[discIndex].Tracks;
+                for (int trackIndex = 0; trackIndex < trackList.Count; trackIndex++)
                 {
-                    releaseStreams += GetTrackStreams(discIndex, trackIndex, tempAlbumInfo);
+                    releaseStreams += GetTrackStreams(discIndex, trackIndex, albumInfo);
                 }
             }
 
