@@ -14,8 +14,8 @@ namespace SongScout.Helpers
         public async Task GetToken()
         {
             #region Secret
-            string CLIENT_ID = "11305c19e8df4f659ae8d72bbbd6b48c";
-            string CLIENT_SECRET = "ca577280e81749ada1fac09de061f655";
+            string CLIENT_ID = "";
+            string CLIENT_SECRET = "";
             #endregion
 
             var config = SpotifyClientConfig.CreateDefault();
