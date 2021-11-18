@@ -1,5 +1,5 @@
 # SongScout
-SongScout is a .NET 5.0 (C#) application for Windows that serves as a tool for retrieving music data from Spotify including streams.
+SongScout is a .NET 5.0 (C#) application for Windows that serves as a tool for retrieving music data from Spotify including streams and metadata.
 
 ## Key Features
 1. Artist search
