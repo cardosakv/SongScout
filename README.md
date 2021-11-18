@@ -3,8 +3,8 @@ SongScout is a .NET 5.0 (C#) application for Windows that serves as a tool for r
 
 ## Key Features
 1. Artist search
-2. Total streams of all time
-3. Estimated sales based on a formula
+2. Total streams (all time, per release, per track)
+3. Estimated sales based on a formula (all time, per release, per track)
 4. Releases information (singles, albums and compilations)
 5. Track metadata
 6. Chart entries
